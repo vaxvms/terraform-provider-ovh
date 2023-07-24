@@ -20,6 +20,11 @@ func dataSourceDbaasLogsCluster() *schema.Resource {
 				Description: "The service name",
 				Required:    true,
 			},
+			"cluster_id": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
 			// Computed
 			"urn": {
 				Type:     schema.TypeString,
@@ -90,41 +95,21 @@ func dataSourceDbaasLogsCluster() *schema.Resource {
 	}
 }
 
-func dbaasGetClusterID(config *Config, serviceName string) (string, error) {
-	res := []string{}
-
-	endpoint := fmt.Sprintf(
-		"/dbaas/logs/%s/cluster",
-		url.PathEscape(serviceName),
-	)
-
-	if err := config.OVHClient.Get(endpoint, &res); err != nil {
-		return "", fmt.Errorf("Error calling GET %s:\n\t %q", endpoint, err)
-	}
-
-	return res[0], nil
-}
-
 func dataSourceDbaasLogsClusterRead(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*Config)
 
 	serviceName := d.Get("service_name").(string)
+	clusterId := d.Get("cluster_id").(string)
 
-	log.Printf("[DEBUG] Will read dbaas logs cluster %s", serviceName)
+	log.Printf("[DEBUG] Will read dbaas logs cluster %s/%s", serviceName, clusterId)
 
-	cluster_id, err := dbaasGetClusterID(config, serviceName)
-
-	if err != nil {
-		return fmt.Errorf("Error fetching info for %s:\n\t %q", serviceName, err)
-	}
-
-	d.SetId(cluster_id)
+	d.SetId(clusterId)
 	d.Set("urn", helpers.ServiceURN(config.Plate, "ldp", serviceName))
 
 	endpoint := fmt.Sprintf(
 		"/dbaas/logs/%s/cluster/%s",
 		url.PathEscape(serviceName),
-		url.PathEscape(cluster_id),
+		url.PathEscape(clusterId),
 	)
 
 	res := map[string]interface{}{}
