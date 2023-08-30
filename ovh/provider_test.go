@@ -233,6 +233,7 @@ func testAccPreCheckKubernetesVRack(t *testing.T) {
 func testAccPreCheckIpLoadbalancing(t *testing.T) {
 	testAccPreCheckCredentials(t)
 	checkEnvOrSkip(t, "OVH_IPLB_SERVICE_TEST")
+	checkEnvOrSkip(t, "OVH_IPLB_IPFO_TEST")
 }
 
 // Checks that the environment variables needed to order /ipLoadbalacing for acceptance tests
@@ -350,4 +351,9 @@ func testAccPreCheckDedicatedCeph(t *testing.T) {
 func testAccPreCheckWorkflowBackup(t *testing.T) {
 	checkEnvOrSkip(t, WORKFLOW_BACKUP_TEST_INSTANCE_ID_ENV_VAR)
 	checkEnvOrSkip(t, WORKFLOW_BACKUP_TEST_REGION_ENV_VAR)
+}
+
+// This variable shall be defined to run the test because it targets an internal route that shall be authorized per user
+func testAccPreCheckDedicatedServerNetworking(t *testing.T) {
+	checkEnvOrSkip(t, "TEST_DEDICATED_SERVER_NETWORKING")
 }
